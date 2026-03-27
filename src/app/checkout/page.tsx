@@ -2,16 +2,17 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button, Radio, RadioGroup } from '@nextui-org/react'
 import { ArrowLeftIcon } from '@heroicons/react/24/outline'
 import Image from 'next/image'
 import Link from 'next/link'
 import { useCartStore } from '@/lib/store/cart'
+import { Map, MapControls, MapMarker, MarkerContent } from '@/components/ui/map'
 
 export default function CheckoutPage() {
   const router = useRouter()
   const { items, getTotalPrice, clearCart } = useCartStore()
   const [isLoading, setIsLoading] = useState(false)
+  const [coordinates, setCoordinates] = useState<{ lng: number; lat: number } | null>(null)
   const [formData, setFormData] = useState({
     customerName: '',
     customerPhone: '',
@@ -36,6 +37,7 @@ export default function CheckoutPage() {
     try {
       const orderData = {
         ...formData,
+        coordinates: coordinates ? { lat: coordinates.lat, lng: coordinates.lng } : null,
         items: items.map((item) => ({
           productId: item.product.id,
           quantity: item.quantity,
@@ -69,10 +71,8 @@ export default function CheckoutPage() {
         <span className="text-6xl mb-4">🛒</span>
         <h1 className="text-xl font-bold text-white mb-2">Tu carrito está vacío</h1>
         <p className="text-zinc-400 mb-6">Agregá algunos panchos para continuar</p>
-        <Link href="/">
-          <Button className="bg-amber-500 text-black font-bold">
-            Ver menú
-          </Button>
+        <Link href="/" className="bg-amber-500 text-black font-bold px-6 py-3 rounded-xl hover:bg-amber-400 transition-colors">
+          Ver menú
         </Link>
       </main>
     )
@@ -160,6 +160,43 @@ export default function CheckoutPage() {
           <section className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
             <h2 className="text-white font-bold mb-4">Dirección de entrega</h2>
             <div className="space-y-4">
+              {/* Mapa */}
+              <div className="h-[200px] rounded-xl overflow-hidden border border-zinc-700">
+                <Map
+                  center={coordinates ? [coordinates.lng, coordinates.lat] : [-58.3816, -34.6037]}
+                  zoom={coordinates ? 15 : 11}
+                  theme="dark"
+                >
+                  <MapControls
+                    position="top-right"
+                    showZoom={true}
+                    showLocate={true}
+                    onLocate={(coords) => {
+                      setCoordinates({ lng: coords.longitude, lat: coords.latitude })
+                    }}
+                  />
+                  {coordinates && (
+                    <MapMarker
+                      longitude={coordinates.lng}
+                      latitude={coordinates.lat}
+                      draggable
+                      onDragEnd={(lngLat) => {
+                        setCoordinates({ lng: lngLat.lng, lat: lngLat.lat })
+                      }}
+                    >
+                      <MarkerContent>
+                        <div className="w-6 h-6 bg-amber-500 rounded-full border-2 border-white shadow-lg flex items-center justify-center">
+                          <span className="text-xs">📍</span>
+                        </div>
+                      </MarkerContent>
+                    </MapMarker>
+                  )}
+                </Map>
+              </div>
+              <p className="text-zinc-500 text-xs text-center">
+                Tocá el botón 📍 para detectar tu ubicación o arrastrá el marcador
+              </p>
+
               <div>
                 <label className="block text-zinc-400 text-sm mb-2">Dirección *</label>
                 <input
@@ -187,32 +224,35 @@ export default function CheckoutPage() {
           {/* Método de pago */}
           <section className="bg-zinc-900 rounded-2xl p-4 border border-zinc-800">
             <h2 className="text-white font-bold mb-4">Método de pago</h2>
-            <RadioGroup
-              value={formData.paymentMethod}
-              onValueChange={(value) => setFormData({ ...formData, paymentMethod: value })}
-            >
-              <Radio
-                value="cash"
-                classNames={{
-                  label: 'text-white',
-                  description: 'text-zinc-400',
-                }}
-                description="Pagás cuando llega tu pedido"
-              >
-                💵 Efectivo
-              </Radio>
-              <Radio
-                value="mercadopago"
-                classNames={{
-                  label: 'text-white',
-                  description: 'text-zinc-400',
-                }}
-                description="Próximamente"
-                isDisabled
-              >
-                💳 MercadoPago
-              </Radio>
-            </RadioGroup>
+            <div className="space-y-3">
+              <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-800/50 border border-zinc-700 cursor-pointer hover:border-amber-500 transition-colors">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="cash"
+                  checked={formData.paymentMethod === 'cash'}
+                  onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value })}
+                  className="mt-1 accent-amber-500"
+                />
+                <div>
+                  <span className="text-white font-medium">💵 Efectivo</span>
+                  <p className="text-zinc-400 text-sm">Pagás cuando llega tu pedido</p>
+                </div>
+              </label>
+              <label className="flex items-start gap-3 p-3 rounded-xl bg-zinc-800/30 border border-zinc-800 cursor-not-allowed opacity-50">
+                <input
+                  type="radio"
+                  name="paymentMethod"
+                  value="mercadopago"
+                  disabled
+                  className="mt-1"
+                />
+                <div>
+                  <span className="text-zinc-500 font-medium">💳 MercadoPago</span>
+                  <p className="text-zinc-600 text-sm">Próximamente</p>
+                </div>
+              </label>
+            </div>
           </section>
 
           {/* Notas */}
@@ -228,14 +268,23 @@ export default function CheckoutPage() {
           </section>
 
           {/* Botón confirmar */}
-          <Button
+          <button
             type="submit"
-            className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold rounded-xl py-6"
-            size="lg"
-            isLoading={isLoading}
+            disabled={isLoading}
+            className="w-full bg-amber-500 hover:bg-amber-400 disabled:bg-amber-500/50 disabled:cursor-not-allowed text-black font-bold rounded-xl py-4 flex items-center justify-center gap-2 transition-colors"
           >
-            Confirmar pedido 🛵💵
-          </Button>
+            {isLoading ? (
+              <>
+                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                </svg>
+                Procesando...
+              </>
+            ) : (
+              'Confirmar pedido 🛵💵'
+            )}
+          </button>
         </form>
       </div>
     </main>

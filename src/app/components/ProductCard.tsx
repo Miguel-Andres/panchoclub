@@ -1,7 +1,6 @@
 'use client'
 
 import { PlusIcon, CheckIcon } from '@heroicons/react/20/solid'
-import { Button } from '@nextui-org/react'
 import Image from 'next/image'
 import { useState } from 'react'
 import { Product } from '@/types'
@@ -79,24 +78,21 @@ export default function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {/* Botón */}
-        <Button
-          className={`w-full font-bold rounded-xl transition-all duration-300 ${
+        <button
+          onClick={handleAddToCart}
+          className={`w-full font-bold rounded-xl py-3 px-4 flex items-center justify-center gap-2 transition-all duration-300 ${
             added
               ? 'bg-green-500 hover:bg-green-400 text-white'
               : 'bg-amber-500 hover:bg-amber-400 text-black'
           }`}
-          size="lg"
-          startContent={
-            added ? (
-              <CheckIcon className="h-5 w-5" />
-            ) : (
-              <PlusIcon className="h-5 w-5" />
-            )
-          }
-          onPress={handleAddToCart}
         >
+          {added ? (
+            <CheckIcon className="h-5 w-5" />
+          ) : (
+            <PlusIcon className="h-5 w-5" />
+          )}
           {added ? 'Agregado!' : 'Agregar'}
-        </Button>
+        </button>
       </div>
     </div>
   )

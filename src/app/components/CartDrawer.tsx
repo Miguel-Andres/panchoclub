@@ -1,7 +1,6 @@
 'use client'
 
 import { XMarkIcon, MinusIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/outline'
-import { Button } from '@nextui-org/react'
 import Image from 'next/image'
 import { useCartStore } from '@/lib/store/cart'
 import { useRouter } from 'next/navigation'

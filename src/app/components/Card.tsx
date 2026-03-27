@@ -1,6 +1,5 @@
 import { CheckIcon } from '@heroicons/react/20/solid'
-import {Image} from "@nextui-org/react";
-import NextImage from "next/image";
+import Image from "next/image";
 
 const includedFeatures = [
   'LLuvia de papas',
@@ -37,11 +36,10 @@ export default function Example() {
           </div>
             <div className=' mt-8'>
             <Image
-            as={NextImage}
       width={150}
       height={300}
       alt="name the menu"
-      src="../public/hotdogs.png" 
+      src="/hotdogs.png"
     />
             </div>
           <div className="-mt-2 p-2 lg:mt-0 lg:w-full lg:max-w-md lg:flex-shrink-0">

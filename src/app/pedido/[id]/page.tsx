@@ -1,10 +1,9 @@
 import { prisma } from '@/lib/prisma'
 import { notFound } from 'next/navigation'
 import Link from 'next/link'
-import { Button } from '@nextui-org/react'
 
 interface PageProps {
-  params: { id: string }
+  params: Promise<{ id: string }>
 }
 
 async function getOrder(id: string) {
@@ -23,7 +22,8 @@ async function getOrder(id: string) {
 }
 
 export default async function PedidoPage({ params }: PageProps) {
-  const order = await getOrder(params.id)
+  const { id } = await params
+  const order = await getOrder(id)
 
   if (!order) {
     notFound()
@@ -149,19 +149,18 @@ export default async function PedidoPage({ params }: PageProps) {
             href={`https://wa.me/5491112345678?text=Hola! Tengo una consulta sobre mi pedido %23${order.id}`}
             target="_blank"
             rel="noopener noreferrer"
-            className="block mt-3"
+            className="block mt-3 w-full bg-green-600 hover:bg-green-500 text-white font-bold py-3 rounded-xl text-center transition-colors"
           >
-            <Button className="w-full bg-green-600 hover:bg-green-500 text-white font-bold">
-              💬 Escribir por WhatsApp
-            </Button>
+            💬 Escribir por WhatsApp
           </a>
         </div>
 
         {/* Back to menu */}
-        <Link href="/">
-          <Button className="w-full bg-amber-500 hover:bg-amber-400 text-black font-bold">
-            Hacer otro pedido
-          </Button>
+        <Link
+          href="/"
+          className="block w-full bg-amber-500 hover:bg-amber-400 text-black font-bold py-3 rounded-xl text-center transition-colors"
+        >
+          Hacer otro pedido
         </Link>
       </div>
     </main>

@@ -43,7 +43,7 @@ export const useCartStore = create<CartState>()(
           }
 
           return {
-            items: [...state.items, { product, quantity: 1 }],
+            items: [...state.items, { productId: product.id, product, quantity: 1 }],
           }
         })
       },
