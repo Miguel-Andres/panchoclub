@@ -1,0 +1,24 @@
+{
+    "Menu": [
+        {
+            "id": 1,
+            "includes": [
+                "Lluvia de papas",
+                "Salsas",
+                "Gaseosa"
+            ],
+            "price": 2000
+        },
+        {
+            "id": 2,
+            "includes": [
+                "Gaseosa",
+                "Lluvia de papas",
+                "Salsas",
+                "Cebolla",
+                "Queso"
+            ],
+            "price": 3000
+        }
+    ]
+}
